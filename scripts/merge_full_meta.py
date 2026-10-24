@@ -24,8 +24,10 @@ def main():
     seen = {}
     dup = 0
     files = sorted(glob.glob(os.path.join(WINDOW_DIR, "*.jsonl")))
-    print(f"merging {len(files)} window files ...", flush=True)
-    for i, fp in enumerate(files):
+    partial_files = sorted(glob.glob(os.path.join(OUT_DIR, "partial", "*.jsonl")))
+    print(f"merging {len(files)} window files + {len(partial_files)} partial files ...", flush=True)
+    all_files = files + partial_files
+    for i, fp in enumerate(all_files):
         with open(fp, encoding="utf-8") as f:
             for line in f:
                 line = line.strip()
@@ -45,7 +47,7 @@ def main():
                         seen[aid] = rec
                 else:
                     seen[aid] = rec
-        if (i + 1) % 500 == 0:
+        if (i + 1) % 2000 == 0:
             print(f"  {i+1}/{len(files)} files, unique={len(seen)} ({time.time()-t0:.0f}s)", flush=True)
 
     records = sorted(seen.values(), key=lambda r: (r.get("time") or 0))
